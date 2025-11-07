@@ -23,7 +23,7 @@
 .\" dealing in this Software without prior written authorization from the
 .\" X Consortium.
 .\"
-.TH Xau __libmansuffix__ __xorgversion__
+.TH Xau 3 2025-07-13 __xorgversion__
 .SH NAME
 Xau library: XauFileName, XauReadAuth, XauLockAuth, XauUnlockAuth,
 XauWriteAuth, XauDisposeAuth,
@@ -32,7 +32,7 @@ XauGetAuthByAddr, XauGetBestAuthByAddr \- X authority database routines
 .ft CW
 .nf
 #include <X11/Xauth.h>
-
+.sp
 typedef struct xauth {
         unsigned short  family;
         unsigned short  address_length;
@@ -44,72 +44,85 @@ typedef struct xauth {
         unsigned short  data_length;
         char    *data;
 } Xauth;
-.HP
+.sp
 char *XauFileName (void);
-.HP
+.sp
 Xauth *XauReadAuth (FILE *\fIauth_file\fP\^);
-.HP
+.sp
 int XauWriteAuth (FILE *\fIauth_file\fP, Xauth *\fIauth\fP\^);
-.HP
-Xauth *XauGetAuthByAddr (unsigned short \fIfamily\fP\^, unsigned short
-\fIaddress_length\fP\^, const char *\fIaddress\fP\^, unsigned short
-\fInumber_length\fP\^, const char *\fInumber\fP\^, unsigned short
-\fIname_length\fP\^, const char *\fIname\fP\^);
-.HP
-Xauth *XauGetBestAuthByAddr (unsigned short \fIfamily\fP\^, unsigned short
-\fIaddress_length\fP\^, const char *\fIaddress\fP\^, unsigned short
-\fInumber_length\fP\^, const char *\fInumber\fP\^, int \fItypes_length\fP\^,
-char **\fItypes\fR\^, const int *\fItype_lengths\fR\^);
-.HP
-int XauLockAuth (const char *\fIfile_name\fP\^, int \fIretries\fP\^, int
-\fItimeout\fP\^, long \fIdead\fP\^);
-.HP
+.sp
+Xauth *XauGetAuthByAddr (unsigned short \fIfamily\fP\^,
+    unsigned short \fIaddress_length\fP\^, const char *\fIaddress\fP\^,
+    unsigned short \fInumber_length\fP\^, const char *\fInumber\fP\^,
+    unsigned short \fIname_length\fP\^, const char *\fIname\fP\^);
+.sp
+Xauth *XauGetBestAuthByAddr (unsigned short \fIfamily\fP\^,
+    unsigned short \fIaddress_length\fP\^, const char *\fIaddress\fP\^,
+    unsigned short \fInumber_length\fP\^, const char *\fInumber\fP\^,
+    int \fItypes_length\fP\^, char **\fItypes\fR\^, const int *\fItype_lengths\fR\^);
+.sp
+int XauLockAuth (const char *\fIfile_name\fP\^, int \fIretries\fP\^,
+    int \fItimeout\fP\^, long \fIdead\fP\^);
+.sp
 int XauUnlockAuth (const char *\fIfile_name\fP\^);
-.HP
+.sp
 int XauDisposeAuth (Xauth *\fIauth\fP\^);
 .fi
 .ft
 .SH DESCRIPTION
+The \fBXau\fP library provides routines for handling authorization files
+for X11 connections, commonly named \fI.Xauthority\fP files,
+and adding or reading entries in them.
+See the
+.BR Xsecurity (7)
+man page for more details on authorization files and the associated
+X11 access control systems.
 .PP
 \fBXauFileName\fP generates the default authorization file name by first
-checking the XAUTHORITY environment variable if set, else it returns
-$HOME/.Xauthority.  This name is statically allocated and should
-not be freed.
+checking the \fBXAUTHORITY\fP environment variable if set, else it returns
+.BR $HOME/.Xauthority .
+This name is statically allocated and should not be freed.
 .PP
-\fBXauReadAuth\fP reads the next entry from \fIauth_file\fP.  The entry is
-\fBnot\fP statically allocated and should be freed by calling
-\fIXauDisposeAuth\fP.
+\fBXauReadAuth\fP reads the next entry from \fIauth_file\fP.
+The entry is \fBnot\fP statically allocated and should be freed by calling
+.BR XauDisposeAuth .
 .PP
-\fBXauWriteAuth\fP writes an authorization entry to \fIauth_file\fP.  It
-returns 1 on success, 0 on failure.
+\fBXauWriteAuth\fP writes an authorization entry to \fIauth_file\fP.
+It returns 1 on success, 0 on failure.
 .PP
 \fBXauGetAuthByAddr\fP searches for an entry which matches the given network
-address/display number pair.  The entry is \fBnot\fP statically allocated
-and should be freed by calling \fIXauDisposeAuth\fP.
+address/display number pair.
+The entry is \fBnot\fP statically allocated and should be freed by calling
+.BR XauDisposeAuth .
 .PP
 \fBXauGetBestAuthByAddr\fP is similar to \fBXauGetAuthByAddr\fP, except
-that a list of acceptable authentication methods is specified.  Xau will
-choose the file entry which matches the earliest entry in this list (e.g., the
-most secure authentication method).  The \fItypes\fP argument is an array of
-strings, one string for each authentication method.  \fItypes_length\fP
-specifies how many elements are in the \fItypes\fP array.
+that a list of acceptable authentication methods is specified.
+Xau will choose the file entry which matches the earliest entry in this list
+(e.g., the most secure authentication method).
+The \fItypes\fP argument is an array of strings,
+one string for each authentication method.
+\fItypes_length\fP specifies how many elements are in the \fItypes\fP array.
 \fItypes_lengths\fP is an array of integers representing the length
 of each string.
 .PP
 \fBXauLockAuth\fP does the work necessary to synchronously update an
-authorization file.  First it makes two file names, one with ``-c'' appended
-to \fIfile_name\fP, the other with ``-l'' appended.  If the ``-c'' file
-already exists and is more than \fIdead\fP seconds old, \fIXauLockAuth\fP
-removes it and the associated ``-l'' file.  To prevent possible
-synchronization troubles with NFS, a \fIdead\fP value of zero forces the
-files to be removed.  \fIXauLockAuth\fP makes \fIretries\fP attempts to
-create and link the file names, pausing \fItimeout\fP seconds between each
-attempt.  \fIXauLockAuth\fP returns a collection of values depending on the
+authorization file.
+First it makes two file names,
+one with \[lq]-c\[rq] appended to \fIfile_name\fP,
+the other with \[lq]-l\[rq] appended.
+If the \[lq]-c\[rq] file already exists and is more than \fIdead\fP seconds old,
+\fBXauLockAuth\fP removes it and the associated \[lq]-l\[rq] file.
+To prevent possible synchronization troubles with NFS,
+a \fIdead\fP value of zero forces the files to be removed.
+\fBXauLockAuth\fP makes \fIretries\fP attempts to create and link the
+file names, pausing \fItimeout\fP seconds between each attempt.
+\fBXauLockAuth\fP returns a collection of values depending on the
 results:
 .TP
 LOCK_ERROR
 A system error occurred, either a file_name which is too long, or an
-unexpected failure from a system call.  errno may prove useful.
+unexpected failure from a system call.
+\fBerrno\fP may prove useful.
 .TP
 LOCK_TIMEOUT
 \fIretries\fP attempts failed
@@ -117,11 +130,13 @@ LOCK_TIMEOUT
 LOCK_SUCCESS
 The lock succeeded.
 .PP
-\fBXauUnlockAuth\fP undoes the work of \fIXauLockAuth\fP by unlinking both
-the ``-c'' and ``-l'' file names.
+\fBXauUnlockAuth\fP undoes the work of \fBXauLockAuth\fP by unlinking both
+the \[lq]-c\[rq] and \[lq]-l\[rq] file names.
 .PP
 \fBXauDisposeAuth\fP frees storage allocated to hold an authorization entry.
 .SH "SEE ALSO"
-xauth(1), xdm(1)
+.BR xauth (1),
+.BR Xsecurity (7),
+.BR xdm (8)
 .SH AUTHOR
 Keith Packard, MIT X Consortium
