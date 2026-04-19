@@ -73,5 +73,5 @@ main (int argc, char **argv)
 	state = XauWriteAuth (output, &test_data);
 	fclose (output);
     }
-    return (state = 1) ? 0 : 1;
+    return (state == 1) ? 0 : 1;
 }
