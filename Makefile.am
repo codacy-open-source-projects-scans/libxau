@@ -64,4 +64,4 @@ dist-hook: ChangeLog INSTALL
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = meson.build meson_options.txt
+EXTRA_DIST = README.md doc/protocol.txt meson.build meson_options.txt

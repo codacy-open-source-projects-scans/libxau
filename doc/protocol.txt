@@ -48,15 +48,15 @@ The sample implementation will use the xdm Display Manager to set up and
 control the server's authorization file.  Sites that do not run xdm will
 need to build their own mechanisms.
 
-Xdm uses a random key (seeded by the system time and check sum of /dev/kmem)
-to generate a unique sequence of characters at 16 bytes long.  This sequence
-will be written to a file which is made readable only by the server.  The
-server will then be started with a command line option instructing it to use
-the contents of the file as the magic cookie for connections that include
-authorization data.  This will also disable the server from adding the local
-machine's address to the initial host list.  Note that the actual cookie must
-not be stored on the command line or in an environment variable, to prevent
-it from being publicly obtainable by the "ps" command.
+Xdm uses a random key to generate a unique sequence of characters that is
+16 bytes long.  This sequence will be written to a file which is made
+readable only by the server.  The server will then be started with a
+command line option instructing it to use the contents of the file as the
+magic cookie for connections that include authorization data.  This will
+also disable the server from adding the local machine's address to the
+initial host list.  Note that the actual cookie must not be stored on the
+command line or in an environment variable, to prevent it from being
+publicly obtainable by the "ps" command.
 
 If a client presents an authorization name of "MIT-MAGIC-COOKIE-1" and
 authorization data that matches the magic cookie, that client is allowed

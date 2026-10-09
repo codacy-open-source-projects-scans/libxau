@@ -17,17 +17,19 @@ add_project_arguments(
 
 cc = meson.get_compiler('c')
 
+func_prefix = '#include <X11/Xos.h>'
 lib_args = []
-
-foreach f : ['explicit_bzero', 'explicit_memset', 'pathconf']
-  if cc.has_function(f)
-    lib_args += '-DHAVE_@0@'.format(f.to_upper())
-  endif
-endforeach
 
 if cc.has_header('unistd.h')
   lib_args += '-DHAVE_UNISTD_H'
+  func_prefix += '\n#include <unistd.h>'
 endif
+
+foreach f : ['explicit_bzero', 'explicit_memset', 'pathconf']
+  if cc.has_function(f, prefix : func_prefix)
+    lib_args += '-DHAVE_@0@'.format(f.to_upper())
+  endif
+endforeach
 
 dep_xproto = dependency('xproto')
 
@@ -35,8 +37,9 @@ if get_option('xthreads')
   lib_args += '-DXTHREADS'
   # This define is not in libXau specific code, but is part of the xproto header
   # This may be only required by HP-UX.
-  if cc.has_function('gethostbyname_r') or \
-     cc.has_function('gethostbyname_r', dependencies : cc.find_library('nls'))
+  if cc.has_function('gethostbyname_r', prefix : '#include <netdb.h>') or \
+     cc.has_function('gethostbyname_r', dependencies : cc.find_library('nls'),
+                     prefix : '#include <netdb.h>')
     lib_args += '-DXUSE_MTSAFE_API=1'
   endif
   if host_machine.system() == 'sunos'
